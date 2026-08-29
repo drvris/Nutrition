@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<title>MASSE.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0708; --surface:#161011; --surface2:#1f1719; --line:#332225;
+    --text:#f4efec; --muted:#9c8e8c;
+    --red:#ff2b3d; --red2:#ff5b3d; --red-deep:#5c0812; --gold:#e8b24a;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;background:var(--bg);}
+  body{color:var(--text);font-family:'Manrope',sans-serif;padding-bottom:90px;
+    background:
+      radial-gradient(circle at 15% -10%, rgba(255,43,61,.20), transparent 45%),
+      radial-gradient(circle at 100% 0%, rgba(255,91,61,.10), transparent 40%),
+      var(--bg);
+    min-height:100vh;
+  }
+  .mono{font-family:'JetBrains Mono',monospace;}
+  .disp{font-family:'Anton',sans-serif;text-transform:uppercase;letter-spacing:.5px;}
+
+  header{position:sticky;top:0;z-index:5;padding:22px 18px 16px;
+    background:linear-gradient(180deg, rgba(10,7,8,.97) 60%, rgba(10,7,8,.85));
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);}
+  .top-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
+  .eyebrow{font-size:11px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:4px;font-weight:600;}
+  .today-date{font-size:13px;color:var(--text);text-transform:capitalize;font-weight:600;}
+  .export-btn{background:var(--surface2);border:1px solid var(--line);color:var(--gold);width:40px;height:40px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s;}
+  .export-btn:active{background:linear-gradient(135deg,var(--red2),var(--red));color:#0a0708;border-color:var(--red);}
+  .export-btn svg{width:17px;height:17px;transform:translate(1px,-1px);}
+  h1.disp{font-size:46px;line-height:.82;margin:0 0 16px;
+    background:linear-gradient(120deg,#fff 10%,var(--red2) 55%,var(--red) 90%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    filter:drop-shadow(0 2px 18px rgba(255,43,61,.25));}
+  h1.disp .arrow{-webkit-text-fill-color:var(--gold);color:var(--gold);background:none;}
+
+  .barbell{position:relative;height:30px;display:flex;align-items:center;}
+  .sleeve{position:relative;flex:1;height:9px;background:var(--surface2);border-radius:5px;overflow:visible;border:1px solid var(--line);}
+  .fill{position:absolute;left:0;top:0;height:100%;background:linear-gradient(90deg,var(--red-deep),var(--red) 60%,var(--red2));border-radius:5px;transition:width .4s ease;}
+  .marker{position:absolute;top:50%;width:18px;height:18px;background:radial-gradient(circle at 35% 30%,#fff,var(--red2) 55%,var(--red));border:3px solid var(--bg);border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 12px rgba(255,43,61,.7);transition:left .4s ease;}
+  .barbell-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:7px;}
+  .barbell-labels .mono{color:var(--text);}
+
+  main{padding:20px 16px 20px;max-width:640px;margin:0 auto;}
+  .tab{display:none;}
+  .tab.active{display:block;animation:fade .3s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+  .card{background:linear-gradient(160deg,var(--surface),var(--surface2));
+    border:1px solid var(--line);border-radius:16px;padding:17px;margin-bottom:13px;
+    box-shadow:0 8px 24px -12px rgba(0,0,0,.6);}
+  .card h3{margin:0 0 4px;font-size:12px;text-transform:uppercase;letter-spacing:1.5px;color:var(--red2);font-weight:800;}
+  .card .title-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:9px;}
+  .card .title-row h3{font-size:16px;color:var(--text);letter-spacing:.3px;font-family:'Manrope';font-weight:800;text-transform:none;}
+  .macro-badge{font-size:11px;color:var(--muted);white-space:nowrap;font-family:'JetBrains Mono';}
+  .macro-badge b{color:var(--red2);font-size:13px;}
+
+  .meal-toggle{display:flex;align-items:flex-start;gap:13px;cursor:pointer;}
+  .check{flex:none;width:27px;height:27px;border-radius:8px;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;margin-top:2px;transition:.15s;background:var(--surface2);}
+  .check.on{background:linear-gradient(135deg,var(--red2),var(--red));border-color:var(--red);box-shadow:0 0 14px rgba(255,43,61,.5);}
+  .check.on:after{content:"✓";color:#0a0708;font-weight:800;font-size:15px;}
+  .meal-body ul{margin:6px 0 0;padding-left:0;list-style:none;font-size:14px;}
+  .meal-body li{padding:3px 0;color:#c9bfbd;}
+  .meal-body li b{color:var(--text);font-weight:700;}
+  .done-label{font-size:11px;color:var(--gold);font-weight:700;margin-top:6px;letter-spacing:.5px;text-transform:uppercase;}
+
+  .note{font-size:12.5px;line-height:1.5;color:#d8c9c6;background:linear-gradient(120deg,rgba(255,43,61,.08),rgba(255,43,61,.02));border-left:3px solid var(--red);padding:11px 13px;border-radius:8px;margin-bottom:16px;}
+  .note b{color:var(--red2);}
+
+  .progress-top{display:flex;gap:10px;margin-bottom:16px;}
+  .pt-box{flex:1;background:linear-gradient(160deg,var(--surface),var(--surface2));border:1px solid var(--line);border-radius:13px;padding:11px 12px;}
+  .pt-box .n{font-family:'JetBrains Mono';font-size:21px;font-weight:700;color:var(--text);}
+  .pt-box .l{font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px;}
+
+  h2.section{font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--red2);margin:24px 0 11px;font-weight:800;}
+  h2.section:first-child{margin-top:0;}
+
+  .prep-item, .shop-item{display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px solid var(--line);}
+  .prep-item:last-child, .shop-item:last-child{border-bottom:none;}
+  .prep-item .txt, .shop-item .txt{flex:1;font-size:14px;}
+  .prep-item .txt.on, .shop-item .txt.on{color:var(--muted);text-decoration:line-through;}
+  .shop-item .price{font-family:'JetBrains Mono';font-size:13px;color:var(--gold);white-space:nowrap;font-weight:600;}
+  .shop-item .tag{font-size:9px;color:var(--muted);display:block;margin-top:2px;letter-spacing:.5px;}
+  .checkbox{flex:none;width:21px;height:21px;border-radius:6px;border:2px solid var(--line);cursor:pointer;transition:.15s;background:var(--surface2);}
+  .checkbox.on{background:linear-gradient(135deg,var(--red2),var(--red));border-color:var(--red);position:relative;box-shadow:0 0 10px rgba(255,43,61,.45);}
+  .checkbox.on:after{content:"✓";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:#0a0708;font-weight:800;}
+
+  .total-row{display:flex;justify-content:space-between;align-items:baseline;padding-top:11px;margin-top:5px;border-top:1px solid var(--line);font-size:13px;color:var(--muted);}
+  .total-row b{font-family:'JetBrains Mono';color:var(--gold);font-size:18px;}
+
+  .weight-form{display:flex;gap:9px;margin-bottom:16px;}
+  .weight-form input{flex:1;background:var(--surface2);border:1px solid var(--line);border-radius:10px;color:var(--text);padding:12px;font-family:'JetBrains Mono';font-size:14px;}
+  .weight-form input::-webkit-calendar-picker-indicator{filter:invert(.7);}
+  .weight-form button{background:linear-gradient(135deg,var(--red2),var(--red));border:none;border-radius:10px;padding:0 20px;font-weight:800;font-family:'Manrope';font-size:20px;color:#0a0708;cursor:pointer;box-shadow:0 4px 16px -4px rgba(255,43,61,.6);}
+
+  svg.chart{width:100%;height:180px;}
+  .log-row{display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:1px solid var(--line);color:#c9bfbd;}
+  .log-row .mono{color:var(--text);font-weight:600;}
+
+  nav.bottom{position:fixed;bottom:0;left:0;right:0;
+    background:linear-gradient(180deg,rgba(22,16,17,.85),rgba(10,7,8,.98));
+    backdrop-filter:blur(10px);
+    border-top:1px solid var(--line);display:flex;z-index:10;
+    padding-bottom:env(safe-area-inset-bottom);}
+  nav.bottom button{flex:1;background:none;border:none;color:var(--muted);font-family:'Manrope';font-size:11px;letter-spacing:1px;text-transform:uppercase;font-weight:700;padding:13px 0 11px;cursor:pointer;position:relative;}
+  nav.bottom button.active{color:var(--red2);}
+  nav.bottom button.active:after{content:"";position:absolute;top:0;left:32%;right:32%;height:2px;background:linear-gradient(90deg,var(--red),var(--red2));box-shadow:0 0 8px var(--red);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="top-row">
+    <div>
+      <div class="eyebrow">Objectif · 31 déc. 2026</div>
+      <div class="today-date mono" id="todayDate"></div>
+    </div>
+    <button class="export-btn" id="exportBtn" title="Exporter vers Google Sheets" aria-label="Exporter">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+    </button>
+  </div>
+  <h1 class="disp"><span id="startWeight">71</span> <span class="arrow">→</span> 80<span style="-webkit-text-fill-color:var(--gold);color:var(--gold);background:none;">kg</span></h1>
+  <div class="barbell">
+    <div class="sleeve" id="sleeve">
+      <div class="fill" id="fill" style="width:0%"></div>
+      <div class="marker" id="marker" style="left:0%"></div>
+    </div>
+  </div>
+  <div class="barbell-labels"><span class="mono">70,0</span><span id="deltaLabel">+0,0 kg</span><span class="mono">80,0</span></div>
+</header>
+
+<main>
+
+  <!-- AUJOURD'HUI -->
+  <section class="tab active" id="tab-today">
+
+    <div class="progress-top">
+      <div class="pt-box"><div class="n mono" id="dayKcal">0</div><div class="l">/ 2990 kcal</div></div>
+      <div class="pt-box"><div class="n mono" id="dayProt">0g</div><div class="l">/ 160 g prot</div></div>
+      <div class="pt-box"><div class="n mono" id="dayCount">0/4</div><div class="l">repas faits</div></div>
+    </div>
+
+    <div id="mealCards"></div>
+  </section>
+
+  <!-- PREP & COURSES -->
+  <section class="tab" id="tab-prep">
+    <h2 class="section">Session 1 — Dimanche soir (lun/mar/mer)</h2>
+    <div class="card" id="prep1"></div>
+
+    <h2 class="section">Session 2 — Mercredi soir (jeu→dim)</h2>
+    <div class="card" id="prep2"></div>
+
+    <h2 class="section">Conservation</h2>
+    <div class="card">
+      <ul style="margin:0;padding-left:18px;font-size:13px;color:#c9bfbd;line-height:1.8;">
+        <li>Riz cuit (frigo) : 3–4 jours max</li>
+        <li>Skyr + miel + beurre de cacahuète (frigo) : 4–5 jours à 4°C</li>
+        <li>Blancs d'œufs ouverts (frigo) : 3–5 jours</li>
+        <li>Sachets dîner (congélo) : jusqu'à 3 mois à ‑18°C</li>
+        <li>Framboises surgelées : plusieurs mois à ‑18°C — tiendront large jusqu'à décembre</li>
+      </ul>
+    </div>
+
+    <h2 class="section">Courses — 7 jours (Carrefour hypermarché)</h2>
+    <div class="card"><h3>Frais &amp; crèmerie</h3><div id="shopFrais"></div></div>
+    <div class="card"><h3>Féculents &amp; épicerie</h3><div id="shopEpicerie"></div></div>
+    <div class="card"><h3>Fruits &amp; légumes</h3><div id="shopFruits"></div></div>
+    <div class="card"><h3>Consommables</h3><div id="shopConso"></div></div>
+
+    <div class="card">
+      <div class="total-row"><span>Total estimé / semaine</span><b id="shopTotal">—</b></div>
+      <div style="font-size:11px;color:var(--muted);margin-top:7px;line-height:1.5;">Prix Carrefour indicatifs (relevés fin août 2026, hors promos), à vérifier en magasin. 📦 = produit qui dure plusieurs semaines (amorti sur le prix affiché), 🔁 = à racheter chaque semaine.</div>
+    </div>
+  </section>
+
+  <!-- PROGRESSION -->
+  <section class="tab" id="tab-progress">
+    <h2 class="section">Ajouter une pesée</h2>
+    <div class="weight-form">
+      <input type="date" id="wDate">
+      <input type="number" step="0.1" id="wVal" placeholder="kg">
+      <button onclick="addWeight()">+</button>
+    </div>
+
+    <div class="card">
+      <svg class="chart" id="chart" viewBox="0 0 320 180"></svg>
+    </div>
+
+    <h2 class="section">Historique</h2>
+    <div class="card" id="wLog"><div style="font-size:13px;color:var(--muted);">Aucune pesée enregistrée pour l’instant.</div></div>
+  </section>
+
+</main>
+
+<nav class="bottom">
+  <button class="active" data-tab="today">Aujourd'hui</button>
+  <button data-tab="prep">Prép &amp; Courses</button>
+  <button data-tab="progress">Progression</button>
+</nav>
+
+<script>
+const todayKey = () => new Date().toISOString().slice(0,10);
+const weekKey = () => { const d=new Date(); const onejan=new Date(d.getFullYear(),0,1); const wk=Math.ceil((((d-onejan)/86400000)+onejan.getDay()+1)/7); return d.getFullYear()+'-W'+wk; };
+
+const MEALS = [
+  {id:'bf', name:'Petit-déjeuner', kcal:480, p:40, g:36, l:20,
+    items:['350 g de Skyr nature','15 g de miel','40 g de beurre de cacahuète','150 g de framboises surgelées (décongelées ou direct dans le skyr)']},
+  {id:'lu', name:'Déjeuner', kcal:940, p:40, g:170, l:11,
+    items:['600 g de riz blanc (poids cuit)','250 g de blancs d\'œufs cuits à la poêle','10 g d\'huile d\'olive / coco','Arôme Maggi + épices']},
+  {id:'sn', name:'Collation', kcal:730, p:40, g:80, l:28,
+    items:['Shaker : 350 ml lait demi-écrémé + 30 g whey isolate','2 bananes entières','50 g d\'amandes non salées']},
+  {id:'di', name:'Dîner', kcal:640, p:40, g:75, l:20,
+    items:['300 g de patates douces en dés (airfryer)','80 g de brocolis surgelés','15 g d\'huile d\'olive','150 g de steak haché 5% (poêle ou airfryer 8-10 min)']}
+];
+
+const PREP1 = [
+  'Riz : cuire ~700 g cru → 1,8 kg cuit, répartir en 3 boîtes de 600 g',
+  'Skyr : 3 boîtes de 350 g Skyr + 15 g miel + 40 g de beurre de cacahuète',
+  'Sachets dîner (x7) : 300 g patate douce + 80 g brocolis + 15 g huile + épices → congélateur',
+  'En-cas semaine (x7) : sachets de 50 g amandes + shakers pré-dosés 30 g whey',
+  'Sortir 150 g de framboises surgelées par jour au fur et à mesure (pas besoin de les préparer à l\'avance)'
+];
+const PREP2 = [
+  'Riz : cuire ~900 g cru → 2,4 kg cuit, répartir en 4 boîtes de 600 g',
+  'Skyr : 4 boîtes Skyr + miel + beurre de cacahuète'
+];
+
+const SHOP = {
+  Frais: [
+    ['Skyr nature — 3 x 850 g (Carrefour Sensation)', 8.55, '🔁'],
+    ['Lait demi-écrémé — 2,5 L', 2.65, '🔁'],
+    ['Blancs d\'œufs liquides — ~1,75 L', 11.00, '🔁'],
+    ['Steaks hachés 5% — 7 x 150 g', 18.40, '🔁'],
+  ],
+  Epicerie: [
+    ['Riz basmati — 1,6 kg', 4.10, '📦'],
+    ['Patates douces — 2,1 kg', 8.17, '🔁'],
+    ['Beurre de cacahuète — 1 pot 300 g+', 4.50, '📦'],
+    ['Miel — 1 pot', 3.90, '📦'],
+    ['Amandes non salées — 350 g', 4.50, '📦'],
+    ['Whey Isolate — ~210 g (sur pot de 750 g)', 8.00, '📦'],
+    ['Huile d\'olive — 1 bouteille', 5.90, '📦'],
+    ['Arôme Maggi / épices', 2.00, '📦'],
+  ],
+  Fruits: [
+    ['Bananes — 14 (collations uniquement)', 3.15, '🔁'],
+    ['Framboises surgelées — ~1 kg (2 x 500 g)', 8.00, '🔁'],
+    ['Brocolis surgelés — 600 g–1 kg', 2.50, '🔁'],
+  ],
+  Conso: [
+    ['Sachets congélation zip', 3.00, '📦'],
+    ['Boîtes hermétiques (si besoin)', 0.00, '📦 déjà en stock ?'],
+  ]
+};
+
+let store = { meals:{}, shop:{}, prep:{}, weights:[] };
+
+function load(key, fallback){
+  try{ const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }
+  catch(e){ return fallback; }
+}
+function save(key, val){
+  try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){}
+}
+
+function renderMeals(){
+  const dayData = store.meals[todayKey()] || {};
+  const wrap = document.getElementById('mealCards');
+  wrap.innerHTML = '';
+  let kcal=0,prot=0,count=0;
+  MEALS.forEach(m=>{
+    const on = !!dayData[m.id];
+    if(on){ kcal+=m.kcal; prot+=m.p; count++; }
+    const card = document.createElement('div');
+    card.className='card';
+    card.innerHTML = `
+      <div class="meal-toggle" data-meal="${m.id}">
+        <div class="check ${on?'on':''}"></div>
+        <div style="flex:1;">
+          <div class="title-row"><h3>${m.name}</h3><div class="macro-badge"><b>${m.kcal}</b> kcal · ${m.p}P · ${m.g}G · ${m.l}L</div></div>
+          <div class="meal-body"><ul>${m.items.map(i=>`<li>${i}</li>`).join('')}</ul></div>
+          ${on?'<div class="done-label">✓ Repas terminé</div>':''}
+        </div>
+      </div>`;
+    card.querySelector('.meal-toggle').addEventListener('click', ()=>toggleMeal(m.id));
+    wrap.appendChild(card);
+  });
+  document.getElementById('dayKcal').textContent = kcal;
+  document.getElementById('dayProt').textContent = prot+'g';
+  document.getElementById('dayCount').textContent = count+'/4';
+}
+
+function toggleMeal(id){
+  const k = todayKey();
+  if(!store.meals[k]) store.meals[k]={};
+  store.meals[k][id] = !store.meals[k][id];
+  save('day:'+k, store.meals[k]);
+  renderMeals();
+}
+
+function renderPrep(){
+  const wk = weekKey();
+  const p1 = store.prep[wk+':1']||{};
+  const p2 = store.prep[wk+':2']||{};
+  const c1 = document.getElementById('prep1'); c1.innerHTML='';
+  PREP1.forEach((t,i)=> c1.appendChild(prepRow(t,i,'1',p1)));
+  const c2 = document.getElementById('prep2'); c2.innerHTML='';
+  PREP2.forEach((t,i)=> c2.appendChild(prepRow(t,i,'2',p2)));
+}
+function prepRow(t,i,session,data){
+  const on = !!data[i];
+  const row = document.createElement('div');
+  row.className='prep-item';
+  row.innerHTML = `<div class="checkbox ${on?'on':''}"></div><div class="txt ${on?'on':''}">${t}</div>`;
+  row.querySelector('.checkbox').addEventListener('click', ()=>togglePrep(session,i));
+  return row;
+}
+function togglePrep(session, i){
+  const wk = weekKey(); const key = wk+':'+session;
+  if(!store.prep[key]) store.prep[key]={};
+  store.prep[key][i] = !store.prep[key][i];
+  save('prep:'+key, store.prep[key]);
+  renderPrep();
+}
+
+function renderShop(){
+  const wk = weekKey();
+  const data = store.shop[wk]||{};
+  const map = {Frais:'shopFrais',Epicerie:'shopEpicerie',Fruits:'shopFruits',Conso:'shopConso'};
+  let total = 0;
+  Object.keys(SHOP).forEach(cat=>{
+    const el = document.getElementById(map[cat]); el.innerHTML='';
+    SHOP[cat].forEach((item,i)=>{
+      const key = cat+i; const on = !!data[key];
+      total += item[1];
+      const row = document.createElement('div');
+      row.className='shop-item';
+      row.innerHTML = `<div class="checkbox ${on?'on':''}"></div>
+        <div class="txt ${on?'on':''}">${item[0]}<span class="tag">${item[2]}</span></div>
+        <div class="price">${item[1]>0? item[1].toFixed(2)+' €':'—'}</div>`;
+      row.querySelector('.checkbox').addEventListener('click', ()=>toggleShop(key));
+      el.appendChild(row);
+    });
+  });
+  document.getElementById('shopTotal').textContent = total.toFixed(2)+' €';
+}
+function toggleShop(key){
+  const wk = weekKey();
+  if(!store.shop[wk]) store.shop[wk]={};
+  store.shop[wk][key] = !store.shop[wk][key];
+  save('shop:'+wk, store.shop[wk]);
+  renderShop();
+}
+
+function currentWeight(){
+  return store.weights.length ? store.weights[store.weights.length-1].w : 71;
+}
+
+function updateBarbell(){
+  const latest = currentWeight();
+  const pct = Math.max(0, Math.min(100, ((latest-70)/(80-70))*100));
+  document.getElementById('fill').style.width = pct+'%';
+  document.getElementById('marker').style.left = pct+'%';
+  const delta = (latest-70);
+  document.getElementById('deltaLabel').textContent = (delta>=0?'+':'')+delta.toFixed(1)+' kg';
+  const sw = document.getElementById('startWeight');
+  if(sw) sw.textContent = (latest%1===0 ? latest.toFixed(0) : latest.toFixed(1)).replace('.',',');
+}
+
+function addWeight(){
+  const d = document.getElementById('wDate').value || todayKey();
+  const v = parseFloat(document.getElementById('wVal').value);
+  if(!v) return;
+  store.weights = store.weights.filter(e=>e.d!==d);
+  store.weights.push({d,w:v});
+  store.weights.sort((a,b)=>a.d.localeCompare(b.d));
+  save('weights', store.weights);
+  document.getElementById('wVal').value='';
+  renderProgress();
+}
+
+function renderProgress(){
+  updateBarbell();
+  const log = document.getElementById('wLog');
+  if(store.weights.length===0){
+    log.innerHTML = '<div style="font-size:13px;color:var(--muted);">Aucune pesée enregistrée pour l\u2019instant.</div>';
+  } else {
+    log.innerHTML = '';
+    [...store.weights].reverse().forEach(e=>{
+      const r = document.createElement('div');
+      r.className='log-row';
+      r.innerHTML = `<span>${e.d}</span><span class="mono">${e.w.toFixed(1)} kg</span>`;
+      log.appendChild(r);
+    });
+  }
+  drawChart();
+}
+
+function drawChart(){
+  const svg = document.getElementById('chart');
+  const start = new Date('2026-08-29'), end = new Date('2026-12-31');
+  const totalDays = (end-start)/86400000;
+  const W=320,H=180,pad=24;
+  const x = (d)=> pad + ((new Date(d)-start)/86400000/totalDays)*(W-2*pad);
+  const y = (w)=> H-pad - ((w-68)/(82-68))*(H-2*pad);
+  let s = '';
+  s += `<defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%" stop-color="#5c0812"/><stop offset="60%" stop-color="#ff2b3d"/><stop offset="100%" stop-color="#ff5b3d"/>
+  </linearGradient></defs>`;
+  s += `<line x1="${x(start)}" y1="${y(80)}" x2="${x(end)}" y2="${y(80)}" stroke="#9c8e8c" stroke-dasharray="3,4" stroke-width="1"/>`;
+  s += `<text x="${x(end)-24}" y="${y(80)-6}" fill="#e8b24a" font-size="9" font-family="JetBrains Mono">80 kg</text>`;
+  s += `<line x1="${pad}" y1="${H-pad}" x2="${W-pad}" y2="${H-pad}" stroke="#332225"/>`;
+  const pts = store.weights.length? store.weights : [{d:'2026-08-29',w:71}];
+  const path = pts.map((p,i)=> (i===0?'M':'L') + x(p.d).toFixed(1)+','+y(p.w).toFixed(1)).join(' ');
+  s += `<path d="${path}" fill="none" stroke="url(#lg)" stroke-width="3"/>`;
+  pts.forEach(p=>{ s += `<circle cx="${x(p.d).toFixed(1)}" cy="${y(p.w).toFixed(1)}" r="4" fill="#ff2b3d" stroke="#0a0708" stroke-width="1.5"/>`; });
+  svg.innerHTML = s;
+}
+
+function renderDate(){
+  const d = new Date();
+  let txt = d.toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+  txt = txt.charAt(0).toUpperCase() + txt.slice(1);
+  document.getElementById('todayDate').textContent = txt;
+}
+
+// -- logique pure (testable indépendamment du DOM) --
+function buildRows(dayMap, weightMap){
+  const allDates = new Set([...Object.keys(dayMap), ...Object.keys(weightMap)]);
+  const sorted = [...allDates].sort();
+  return sorted.map(date=>{
+    const meals = dayMap[date] || {};
+    let kcal=0, prot=0, gluc=0, lip=0;
+    MEALS.forEach(m=>{ if(meals[m.id]){ kcal+=m.kcal; prot+=m.p; gluc+=m.g; lip+=m.l; } });
+    const row = { 'Date': date, 'Poids (kg)': weightMap[date] !== undefined ? weightMap[date] : '' };
+    MEALS.forEach(m=> row[m.name] = meals[m.id] ? 'Oui' : 'Non');
+    row['Kcal total'] = kcal;
+    row['Protéines (g)'] = prot;
+    row['Glucides (g)'] = gluc;
+    row['Lipides (g)'] = lip;
+    return row;
+  });
+}
+function toCSV(rows){
+  if(!rows.length) return '';
+  const headers = Object.keys(rows[0]);
+  const esc = v => '"'+String(v).replace(/"/g,'""')+'"';
+  const lines = [headers.map(esc).join(',')];
+  rows.forEach(r=> lines.push(headers.map(h=>esc(r[h])).join(',')));
+  return lines.join('\r\n');
+}
+
+// -- export déclenché par le bouton --
+function exportData(){
+  const dayMap = {};
+  for(let i=0;i<localStorage.length;i++){
+    const k = localStorage.key(i);
+    if(k && k.indexOf('day:')===0){
+      const date = k.slice(4);
+      try{ dayMap[date] = JSON.parse(localStorage.getItem(k)); }catch(e){}
+    }
+  }
+  const weights = load('weights', []);
+  const weightMap = {};
+  weights.forEach(w=> weightMap[w.d] = w.w);
+
+  const rows = buildRows(dayMap, weightMap);
+  if(rows.length===0){
+    alert('Pas encore de données à exporter — coche au moins un repas ou ajoute une pesée.');
+    return;
+  }
+
+  const csv = '\uFEFF' + toCSV(rows); // BOM pour que les accents s'affichent bien dans Sheets/Excel
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'Nutrition.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function setupTabs(){
+  document.querySelectorAll('nav.bottom button').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('nav.bottom button').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+    });
+  });
+}
+
+function init(){
+  renderDate();
+  document.getElementById('exportBtn').addEventListener('click', exportData);
+  document.getElementById('wDate').value = todayKey();
+  store.meals[todayKey()] = load('day:'+todayKey(), {});
+  const wk = weekKey();
+  store.prep[wk+':1'] = load('prep:'+wk+':1', {});
+  store.prep[wk+':2'] = load('prep:'+wk+':2', {});
+  store.shop[wk] = load('shop:'+wk, {});
+  store.weights = load('weights', []);
+  setupTabs();
+  renderMeals();
+  renderPrep();
+  renderShop();
+  renderProgress();
+}
+init();
+</script>
+</body>
+</html>
