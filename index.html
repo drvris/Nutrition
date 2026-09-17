@@ -255,7 +255,10 @@
 </nav>
 
 <script>
-const todayKey = () => new Date().toISOString().slice(0,10);
+const pad2 = n => String(n).padStart(2,'0');
+const dateToKey = d => d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate());
+const keyToLocalDate = k => { const [y,m,d] = k.split('-').map(Number); return new Date(y, m-1, d); };
+const todayKey = () => dateToKey(new Date());
 const weekKey = () => { const d=new Date(); const onejan=new Date(d.getFullYear(),0,1); const wk=Math.ceil((((d-onejan)/86400000)+onejan.getDay()+1)/7); return d.getFullYear()+'-W'+wk; };
 
 const MEALS = [
@@ -342,14 +345,14 @@ function textColorForCount(c){
   return (c===3 || c===2) ? '#1a1a1a' : 'var(--text)';
 }
 function shiftDate(dateKey, deltaDays){
-  const d = new Date(dateKey+'T00:00:00');
+  const d = keyToLocalDate(dateKey);
   d.setDate(d.getDate()+deltaDays);
-  return d.toISOString().slice(0,10);
+  return dateToKey(d);
 }
 
 function renderDayNav(){
   const label = document.getElementById('dayNavLabel');
-  const d = new Date(selectedDate+'T00:00:00');
+  const d = keyToLocalDate(selectedDate);
   let txt = d.toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
   txt = txt.charAt(0).toUpperCase() + txt.slice(1);
   const isToday = selectedDate === todayKey();
